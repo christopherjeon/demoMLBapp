@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
 import plotly.graph_objs as go
+import os
 
 df = pd.read_excel('ALMVP.xlsx', sheet_name='Sheet1')
 
@@ -23,7 +24,7 @@ for i in df.index:
     rawName = df['Name'][i]
     editName = rawName[:-10]
     players.append(editName)
-    print editName
+    
 
 app.layout = html.Div([
     html.H1(
@@ -33,29 +34,56 @@ app.layout = html.Div([
             'color': colors['text']
         }
     ),
-    html.Div(
-        children='A Closer Look at the Top Players from 2018 (Baseball Reference)',
-        style={
-            'textAlign': 'center',
-            'color': colors['text']
-        }
-    ),
+
     html.Div([
-        dcc.Dropdown(
-             id="stat-column",
-             options=[{'label': i, 'value': i} for i in stats],
-             value="WAR"
-             ),
-        dcc.Graph(id='model-graphic')
-    ])
+        html.Div([
+            html.Div([
+                dcc.Dropdown(
+                    multi=True,
+                    id="player-column",
+                    options=[{'label': i, 'value': i} for i in players]
+                )
+            ]),
+            html.Div(id ='player-pics' )
+            
+        ], className='four columns'),
+        html.Div([
+            dcc.Dropdown(
+                id="stat-column",
+                options=[{'label': i, 'value': i} for i in stats],
+                value="WAR"
+            ),
+            dcc.Graph(id='model-graphic')
+        ], className='eight columns')
+        
+    ], className='row')
 ])
+
+
+
+@app.callback(
+    dash.dependencies.Output('player-pics', 'children'),
+    [dash.dependencies.Input('player-column', 'value')]
+)
+def display_image(player_list):
+    toReturn = []
+    for player in player_list:
+        print(os.path.exists('/Users/chrisjeon/Desktop/DemoApp/images/Mike_Trout.jpg'))
+        toReturn.append(html.Img(
+            src='/Users/chrisjeon/Desktop/DemoApp/images/Mike_Trout.jpg'))
+    print('hello')
+    print(toReturn)
+    
+    return toReturn
+
 
 
 @app.callback(
     dash.dependencies.Output('model-graphic', 'figure'),
     [dash.dependencies.Input('stat-column', 'value')]
-
 )
+
+
 def update_model(variable_column):
 
     return {
@@ -82,9 +110,8 @@ def update_model(variable_column):
             margin={'l': 40, 'b': 40, 't': 10, 'r': 0},
             hovermode='closest'
         )
-
-
     }
+
 
 
 if __name__ == '__main__':
