@@ -44,7 +44,12 @@ app.layout = html.Div([
                     options=[{'label': i, 'value': i} for i in players]
                 )
             ]),
-            html.Div(id ='player-pics' )
+            html.Div(
+                id ='player-pics',
+                style={
+                    'height': '25%'
+                }
+            )
             
         ], className='four columns'),
         html.Div([
@@ -67,12 +72,11 @@ app.layout = html.Div([
 )
 def display_image(player_list):
     toReturn = []
-    for player in player_list:
-        print(os.path.exists('/Users/chrisjeon/Desktop/DemoApp/images/Mike_Trout.jpg'))
-        toReturn.append(html.Img(
-            src='/Users/chrisjeon/Desktop/DemoApp/images/Mike_Trout.jpg'))
-    print('hello')
-    print(toReturn)
+    if player_list is not None:
+        for player in player_list: 
+            toReturn.append( html.Img(src='/assets/images/%s.jpg' % player))
+        print('hello')
+        print(toReturn)
     
     return toReturn
 
