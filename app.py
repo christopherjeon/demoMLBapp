@@ -4,6 +4,7 @@ import dash_html_components as html
 import pandas as pd
 import plotly.graph_objs as go
 import os
+import unicodedata
 
 df = pd.read_excel('ALMVP.xlsx', sheet_name='Sheet1')
 
@@ -20,6 +21,8 @@ colors = {
 
 players = []
 
+chosen = []
+
 for i in df.index:
     rawName = df['Name'][i]
     editName = rawName[:-10]
@@ -27,7 +30,7 @@ for i in df.index:
     
 
 app.layout = html.Div([
-    html.H1(
+    html.H2(
         children='Breakdown of American League MVP Candidates (2018 Season)',
         style={
             'textAlign': 'center',
@@ -45,10 +48,7 @@ app.layout = html.Div([
                 )
             ]),
             html.Div(
-                id ='player-pics',
-                style={
-                    'height': '25%'
-                }
+                id ='player-pics'
             )
             
         ], className='four columns'),
@@ -74,9 +74,22 @@ def display_image(player_list):
     toReturn = []
     if player_list is not None:
         for player in player_list: 
-            toReturn.append( html.Img(src='/assets/images/%s.jpg' % player))
-        print('hello')
-        print(toReturn)
+            toReturn.append( 
+                html.Img(
+                    alt= player,
+                    src='/assets/images/%s.jpg' % player,
+                    style={
+                        'height': '200px',
+                        'width': '150px',
+                        'margin-top': '10px',
+                        'margin-bottom': '10px',
+                        'margin-right': '10px',
+                        'margin-left': '10px'
+                    },
+                    
+                )
+            )
+        #print(toReturn)
     
     return toReturn
 
@@ -84,22 +97,34 @@ def display_image(player_list):
 
 @app.callback(
     dash.dependencies.Output('model-graphic', 'figure'),
-    [dash.dependencies.Input('stat-column', 'value')]
+    [dash.dependencies.Input('stat-column', 'value'),
+    dash.dependencies.Input('player-column', 'value')]
 )
 
 
-def update_model(variable_column):
+def update_model(variable_column, player_column):
+    selected_players = []
+   
+    if player_column is not None:
+        selected_players = [x.encode('UTF8') for x in player_column]
+
+    print(selected_players)
 
     return {
-        'data': [go.Scatter(
-            x=players,
+
+        'data': [go.Bar(
+            x= selected_players,
             y=df[variable_column],
-            mode='markers',
-            marker={
-                'size': 15,
-                'opacity': 0.9,
-                'line': {'width': 0.1, 'color': 'white'}
-            }
+            marker=dict(
+                color=['rgba(254, 44, 11, 1)',
+                       'rgba(11, 80, 254, 1)',
+                       'rgba(19, 221, 23, 1)',
+                       'rgba(243, 109, 176, 1)',
+                       'rgba(222, 233, 28, 1)',
+                       'rgba(177, 51, 235, 1)',
+                       'rgba(235, 140, 51, 1)']
+            )
+            
         )],
 
         'layout': go.Layout(
@@ -111,7 +136,7 @@ def update_model(variable_column):
                 'title': variable_column
 
             },
-            margin={'l': 40, 'b': 40, 't': 10, 'r': 0},
+            margin={'l': 60, 'b': 100, 't': 60, 'r': 60},
             hovermode='closest'
         )
     }
