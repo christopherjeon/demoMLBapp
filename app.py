@@ -30,16 +30,34 @@ for i in df.index:
     
 
 app.layout = html.Div([
-    html.H2(
-        children='Breakdown of American League MVP Candidates (2018 Season)',
-        style={
-            'textAlign': 'center',
-            'color': colors['text']
-        }
-    ),
+    html.Div([
+        html.Img(
+            src='/assets/images/logo.svg',
+            style={
+                'display':'inline-block'
+            } 
+        ),
+
+        html.H2(
+    
+            children='Breakdown of American League MVP Candidates (2018 Season)',
+            style={
+                'textAlign': 'center',
+                'color': colors['text'],
+                'display':'inline-block',
+                'padding-left':'50px',
+                'margin-top': '-100px'
+            }
+        )
+
+    ]),
+    
 
     html.Div([
         html.Div([
+            html.H3(
+                children='Choose player...'
+            ),
             html.Div([
                 dcc.Dropdown(
                     multi=True,
@@ -49,16 +67,24 @@ app.layout = html.Div([
             ]),
             html.Div(
                 id ='player-pics'
+            
             )
             
         ], className='four columns'),
         html.Div([
-            dcc.Dropdown(
-                id="stat-column",
-                options=[{'label': i, 'value': i} for i in stats],
-                value="WAR"
+            html.H3(
+                children='Select a stat...'
             ),
-            dcc.Graph(id='model-graphic')
+
+            html.Div([
+                dcc.Dropdown(
+                    id="stat-column",
+                    options=[{'label': i, 'value': i} for i in stats],
+                    value="WAR"
+                ),
+                dcc.Graph(id='model-graphic')
+            ])
+            
         ], className='eight columns')
         
     ], className='row')
