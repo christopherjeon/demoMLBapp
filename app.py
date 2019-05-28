@@ -20,9 +20,6 @@ colors = {
 }
 
 players = []
-
-chosen = []
-
 for i in df.index:
     rawName = df['Name'][i]
     editName = rawName[:-10]
@@ -83,6 +80,24 @@ app.layout = html.Div([
                     value="WAR"
                 ),
                 dcc.Graph(id='model-graphic')
+            ]),
+
+            html.Div([
+                dcc.Dropdown(
+                    id="compare1-column",
+                    options=[{'label': i, 'value': i} for i in players]
+                )
+            ]),
+            html.Div([
+                dcc.Dropdown(
+                    id="compare2-column",
+                    options=[{'label': i, 'value': i} for i in players]
+                )
+            ]),
+
+            html.Div([
+                dcc.Graph(id='radar-graphic')
+
             ])
             
         ], className='eight columns')
@@ -115,7 +130,7 @@ def display_image(player_list):
                     
                 )
             )
-        #print(toReturn)
+        
     
     return toReturn
 
@@ -134,12 +149,10 @@ def update_model(variable_column, player_column):
     if player_column is not None:
         selected_players = [x.encode('UTF8') for x in player_column]
 
-    print(selected_players)
-
     return {
 
         'data': [go.Bar(
-            x= selected_players,
+            x=selected_players,
             y=df[variable_column],
             marker=dict(
                 color=['rgba(254, 44, 11, 1)',
@@ -165,6 +178,78 @@ def update_model(variable_column, player_column):
             margin={'l': 60, 'b': 100, 't': 60, 'r': 60},
             hovermode='closest'
         )
+    }
+
+
+@app.callback(
+    dash.dependencies.Output('radar-graphic', 'figure'),
+    [dash.dependencies.Input('compare1-column', 'value'),
+     dash.dependencies.Input('compare2-column', 'value')]
+)
+
+def display_radar(compare_column1, compare_column2):
+    selected_player1 = ''
+    selected_player2 = ''
+    radar_stats = ['HR', 'RBI', 'H', 'BB', 'R']
+    
+    player1_stats = []
+    player2_stats = []
+
+    if compare_column1 is not None:
+        selected_player1 = compare_column1.encode('UTF8')
+        select_player1_index = players.index(compare_column1)
+
+        for i in radar_stats:
+            player1_stats.append(df.loc[select_player1_index, i])
+        
+        print(player1_stats)
+
+
+    if compare_column2 is not None:
+        selected_player2 = compare_column2.encode('UTF8')
+        select_player2_index = players.index(compare_column2)
+
+        for i in radar_stats:
+            player2_stats.append(df.loc[select_player2_index, i])
+
+        print(player2_stats)
+
+
+
+    
+
+    
+    #for i in radar_stats:
+    
+
+
+    return {
+
+        'data': [go.Scatterpolar(
+            r=player1_stats,
+            theta=radar_stats,
+            fill='toself',
+            name=compare_column1),
+
+            go.Scatterpolar(
+            r=player2_stats,
+            theta=radar_stats,
+            fill='toself',
+            name=compare_column2)
+        ]
+        
+        ,
+
+        'layout': go.Layout(
+            polar=dict(
+                radialaxis=dict(
+                    visible=True,
+                    range=[0, 200]
+                )
+            ),
+            showlegend=False
+        )
+
     }
 
 
