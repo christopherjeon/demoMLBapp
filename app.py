@@ -82,6 +82,10 @@ app.layout = html.Div([
                 dcc.Graph(id='model-graphic')
             ]),
 
+            html.H3(
+                children='Head-to-Head Player Comparison:'
+            ),
+
             html.Div([
                 dcc.Dropdown(
                     id="compare1-column",
@@ -135,7 +139,6 @@ def display_image(player_list):
     return toReturn
 
 
-
 @app.callback(
     dash.dependencies.Output('model-graphic', 'figure'),
     [dash.dependencies.Input('stat-column', 'value'),
@@ -145,15 +148,24 @@ def display_image(player_list):
 
 def update_model(variable_column, player_column):
     selected_players = []
+    selected_index = []
+
+    target_stat= ''
    
     if player_column is not None:
         selected_players = [x.encode('UTF8') for x in player_column]
+        for i in selected_players:
+            selected_index.append(players.index(i))
+
+    if variable_column is not None:
+        target_stat = variable_column.encode('UTF8')
+
 
     return {
 
         'data': [go.Bar(
             x=selected_players,
-            y=df[variable_column],
+            y=df.loc[selected_index][target_stat],
             marker=dict(
                 color=['rgba(254, 44, 11, 1)',
                        'rgba(11, 80, 254, 1)',
@@ -212,16 +224,6 @@ def display_radar(compare_column1, compare_column2):
         for i in radar_stats:
             player2_stats.append(df.loc[select_player2_index, i])
 
-        print(player2_stats)
-
-
-
-    
-
-    
-    #for i in radar_stats:
-    
-
 
     return {
 
@@ -247,7 +249,7 @@ def display_radar(compare_column1, compare_column2):
                     range=[0, 200]
                 )
             ),
-            showlegend=False
+            showlegend=True
         )
 
     }
